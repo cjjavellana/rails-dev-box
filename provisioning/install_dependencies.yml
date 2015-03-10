@@ -61,3 +61,27 @@
 
     - name: Add NodeJS binary to path
       lineinfile: dest=/home/vagrant/.bash_profile state=present backrefs=yes regexp='^PATH=\$PATH\:\$HOME/bin$' line="PATH=$PATH:$HOME/bin:{{extra_path}}"
+
+    - name: Open Rails Server (port 3000/tcp)
+      lineinfile: >
+        dest=/etc/sysconfig/iptables
+        state=present
+        regexp="INPUT.*tcp.*dport\s3000.*ACCEPT$"
+        insertafter="INPUT.*tcp.*dport\s22.*ACCEPT$"
+        line="-A INPUT -m state --state NEW -m tcp -p tcp --dport 3000 -j ACCEPT"
+        backup=yes
+      notify: restart iptables
+
+    - name: Open Grunt Server (port 8000/tcp)
+      lineinfile: >
+        dest=/etc/sysconfig/iptables
+        state=present
+        regexp="INPUT.*tcp.*dport\s8000.*ACCEPT$"
+        insertafter="INPUT.*tcp.*dport\s3000.*ACCEPT$"
+        line="-A INPUT -m state --state NEW -m tcp -p tcp --dport 8000 -j ACCEPT"
+        backup=yes
+      notify: restart iptables
+
+  handlers:
+    - name: restart iptables
+      service: name=iptables state=restarted
