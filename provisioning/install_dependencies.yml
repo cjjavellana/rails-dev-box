@@ -9,6 +9,9 @@
     - name: Install 'Development Tools'
       yum: name="@Development Tools" state=present
 
+    - name: Add vagrant to rvm group
+      user: name=vagrant groups=rvm append=yes
+
     - name: Check for Ruby 2.2.1
       stat: path=/usr/local/rvm/rubies/ruby-2.2.1
       register: ruby_stat
@@ -107,9 +110,6 @@
       yum: pkg=redis.x86_64 state=present
       notify: start redis
 
-    - name: Add vagrant to rvm group
-      user: name=vagrant groups=rvm append=yes
-      
   handlers:
     - name: restart iptables
       service: name=iptables state=restarted
